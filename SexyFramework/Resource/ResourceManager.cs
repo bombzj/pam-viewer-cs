@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using SexyFramework.GraphicsLib;
 using SexyFramework.Misc;
@@ -94,8 +97,110 @@ namespace SexyFramework.Resource
 			return true;
 		}
 
-		// Token: 0x06000DFE RID: 3582 RVA: 0x000464E8 File Offset: 0x000446E8
-		protected virtual bool ParseSoundResource(XMLElement theElement)
+        public bool ParseResourcesFileJson(string theFileName)
+        {
+			SexyBuffer buffer = new SexyBuffer();
+			string fileDir = Common.GetFileDir(theFileName, false);
+			if (!GlobalMembers.gSexyAppBase.ReadBufferFromStream(theFileName, ref buffer))
+			{
+				return this.Fail("Unable to load file: " + theFileName);
+			}
+			using FileStream stream = new FileStream("Content\\" + theFileName, FileMode.Open);
+			using JsonDocument json = JsonDocument.Parse(stream, new JsonDocumentOptions { AllowTrailingCommas = true });
+
+			JsonElement root = json.RootElement;
+
+			foreach(JsonElement group in root.GetProperty("groups").EnumerateArray())
+            {
+				string id = group.GetProperty("id").GetString();
+				switch (group.GetProperty("type").GetString()) {
+					case "simple":
+						ResGroup rg = new ResGroup();
+						foreach (JsonElement resource in group.GetProperty("resources").EnumerateArray())
+						{
+							StringBuilder sbPath = new StringBuilder(50);
+							foreach(JsonElement p in resource.GetProperty("path").EnumerateArray())
+                            {
+								sbPath.Append(p.GetString()).Append('\\');
+							}
+							sbPath.Length--;
+							string path = sbPath.ToString();
+							BaseRes res = null;
+							switch (resource.GetProperty("type").GetString())
+							{
+								case "Image":
+									bool isAtlas = false;
+									if(resource.TryGetProperty("atlas", out JsonElement isAtlasElement))
+                                    {
+										isAtlas = isAtlasElement.GetBoolean();
+									}
+									if (isAtlas)
+                                    {
+										res = new ImageRes
+										{
+											mId = resource.GetProperty("id").GetString(),
+											mIsAtlas = isAtlas,
+											mPath = path,
+											mParent = this
+										};
+									}
+                                    else
+									{
+										res = new ImageRes
+										{
+											mId = resource.GetProperty("id").GetString(),
+											mAtlasX = resource.GetProperty("ax").GetInt32(),
+											mAtlasY = resource.GetProperty("ay").GetInt32(),
+											mAtlasW = resource.GetProperty("aw").GetInt32(),
+											mAtlasH = resource.GetProperty("ah").GetInt32(),
+											mIsAtlas = isAtlas,
+											mPath = path,
+											mAtlasName = resource.GetProperty("parent").GetString(),
+											mParent = this
+										};
+									}
+									break;
+								case "PopAnim":
+									res = new PopAnimRes
+									{
+										mId = resource.GetProperty("id").GetString(),
+										mPath = path,
+									};
+									break;
+							}
+							if(res != null)
+							{
+								rg.mResList.Add(res);
+								this.mResMaps[((int)res.mType)].Add(res.mId, res);
+							}
+						}
+						mResGroupMap.TryAdd(id, rg);
+						break;
+					case "composite":
+						CompositeResGroup crp = new CompositeResGroup();
+						foreach (JsonElement subgroup in group.GetProperty("subgroups").EnumerateArray())
+						{
+							SubGroup sg = new SubGroup
+							{
+								mGroupName = subgroup.GetProperty("id").GetString(),
+							};
+							if (subgroup.TryGetProperty("res", out JsonElement resElement))
+                            {
+								sg.mArtRes = Int32.Parse(resElement.GetString());
+							}
+							crp.mSubGroups.Add(sg);
+						}
+						mCompositeResGroupMap.Add(id, crp);
+						break;
+				}
+
+            }
+
+            return true;
+		}
+
+        // Token: 0x06000DFE RID: 3582 RVA: 0x000464E8 File Offset: 0x000446E8
+        protected virtual bool ParseSoundResource(XMLElement theElement)
 		{
 			SoundRes soundRes = new SoundRes();
 			soundRes.mSoundId = -1;
@@ -627,165 +732,141 @@ namespace SexyFramework.Resource
 		// Token: 0x06000E07 RID: 3591 RVA: 0x00047324 File Offset: 0x00045524
 		public bool DoParseResources()
 		{
-			if (!this.mXMLParser.HasFailed())
+			if (!mXMLParser.HasFailed())
 			{
-				XMLElement xmlelement;
-				XMLElement xmlelement2;
-				for (;;)
+				while (true)
 				{
-					xmlelement = new XMLElement();
-					if (!this.mXMLParser.NextElement(xmlelement))
+					XMLElement xmlelement = new XMLElement();
+					if (!mXMLParser.NextElement(xmlelement))
 					{
-						goto IL_395;
+						break;
 					}
 					if (xmlelement.mType == XMLElement.XMLElementType.TYPE_START)
 					{
 						if (xmlelement.mValue.ToString() == "Resources")
 						{
-							this.mCurResGroup = xmlelement.GetAttribute("id");
-							if (this.mCurResGroup.Length <= 0)
+							mCurResGroup = xmlelement.GetAttribute("id");
+							if (mCurResGroup.Length > 0)
 							{
-								break;
-							}
-							if (this.mResGroupMap.ContainsKey(this.mCurResGroup))
-							{
-								this.mCurResGroupList = this.mResGroupMap[this.mCurResGroup];
-							}
-							else
-							{
-								this.mCurResGroupList = new ResGroup();
-								this.mResGroupMap[this.mCurResGroup] = this.mCurResGroupList;
-							}
-							this.mCurCompositeResGroup = xmlelement.GetAttribute("parent");
-							string attribute = xmlelement.GetAttribute("res");
-							this.mCurResGroupArtRes = ((attribute.Length <= 0) ? 0 : int.Parse(attribute));
-							string attribute2 = xmlelement.GetAttribute("loc");
-							this.mCurResGroupLocSet = (uint)((attribute2.Length < 4) ? '\0' : (((uint)attribute2[0] << 24) | ((uint)attribute2[1] << 16) | ((uint)attribute2[2] << 8) | attribute2[3]));
-							if (!this.ParseResources())
-							{
-								goto Block_8;
-							}
-						}
-						else
-						{
-							if (!(xmlelement.mValue.ToString() == "CompositeResources"))
-							{
-								goto IL_34F;
-							}
-							string attribute3 = xmlelement.GetAttribute("id");
-							if (attribute3.Length <= 0)
-							{
-								goto Block_10;
-							}
-							CompositeResGroup compositeResGroup;
-							if (this.mCompositeResGroupMap.ContainsKey(attribute3))
-							{
-								compositeResGroup = this.mCompositeResGroupMap[attribute3];
-							}
-							else
-							{
-								compositeResGroup = new CompositeResGroup();
-								this.mCompositeResGroupMap[attribute3] = compositeResGroup;
-							}
-							for (;;)
-							{
-								xmlelement2 = new XMLElement();
-								if (!this.mXMLParser.NextElement(xmlelement2))
+								if (mResGroupMap.ContainsKey(mCurResGroup))
 								{
-									return false;
-								}
-								if (xmlelement2.mType == XMLElement.XMLElementType.TYPE_START)
-								{
-									if (!(xmlelement2.mValue.ToString() == "Group"))
-									{
-										goto IL_2ED;
-									}
-									string attribute4 = xmlelement2.GetAttribute("id");
-									int mArtRes = 0;
-									string attribute5 = xmlelement2.GetAttribute("res");
-									if (attribute5.Length > 0)
-									{
-										mArtRes = int.Parse(attribute5);
-									}
-									uint mLocSet = 0U;
-									string attribute6 = xmlelement2.GetAttribute("loc");
-									if (attribute6.Length >= 4)
-									{
-										mLocSet = (uint)(((uint)attribute6[0] << 24) | ((uint)attribute6[1] << 16) | ((uint)attribute6[2] << 8) | attribute6[3]);
-									}
-									SubGroup subGroup = new SubGroup();
-									subGroup.mGroupName = attribute4;
-									subGroup.mArtRes = mArtRes;
-									subGroup.mLocSet = mLocSet;
-									compositeResGroup.mSubGroups.Add(subGroup);
-									if (!this.mXMLParser.NextElement(xmlelement2))
-									{
-										goto Block_17;
-									}
-									if (xmlelement2.mType != XMLElement.XMLElementType.TYPE_END)
-									{
-										goto Block_18;
-									}
+									mCurResGroupList = mResGroupMap[mCurResGroup];
 								}
 								else
 								{
-									if (xmlelement2.mType == XMLElement.XMLElementType.TYPE_ELEMENT)
-									{
-										goto Block_19;
-									}
-									if (xmlelement2.mType == XMLElement.XMLElementType.TYPE_END)
-									{
-										break;
-									}
+									mCurResGroupList = new ResGroup();
+									mResGroupMap[mCurResGroup] = mCurResGroupList;
+								}
+								mCurCompositeResGroup = xmlelement.GetAttribute("parent");
+								string attribute = xmlelement.GetAttribute("res");
+								mCurResGroupArtRes = ((attribute.Length > 0) ? int.Parse(attribute) : 0);
+								string attribute2 = xmlelement.GetAttribute("loc");
+								mCurResGroupLocSet = ((attribute2.Length >= 4) ? (((uint)attribute2[0] << 24) | ((uint)attribute2[1] << 16) | ((uint)attribute2[2] << 8) | attribute2[3]) : 0u);
+								if (!ParseResources())
+								{
+									break;
+								}
+								continue;
+							}
+							Fail("No id specified.");
+							break;
+						}
+						if (!(xmlelement.mValue.ToString() == "CompositeResources"))
+						{
+							Fail("Invalid Section '" + xmlelement.mValue?.ToString() + "'");
+							break;
+						}
+						string attribute3 = xmlelement.GetAttribute("id");
+						if (attribute3.Length <= 0)
+						{
+							Fail("No id specified on CompositeGroup.");
+							break;
+						}
+						CompositeResGroup compositeResGroup;
+						if (mCompositeResGroupMap.ContainsKey(attribute3))
+						{
+							compositeResGroup = mCompositeResGroupMap[attribute3];
+						}
+						else
+						{
+							compositeResGroup = new CompositeResGroup();
+							mCompositeResGroupMap[attribute3] = compositeResGroup;
+						}
+						while (true)
+						{
+							XMLElement xmlelement2 = new XMLElement();
+							if (!mXMLParser.NextElement(xmlelement2))
+							{
+								return false;
+							}
+							if (xmlelement2.mType == XMLElement.XMLElementType.TYPE_START)
+							{
+								if (!(xmlelement2.mValue.ToString() == "Group"))
+								{
+									Fail("Invalid Section '" + xmlelement2.mValue?.ToString() + "' within CompositeGroup");
+									break;
+								}
+								string attribute4 = xmlelement2.GetAttribute("id");
+								int mArtRes = 0;
+								string attribute5 = xmlelement2.GetAttribute("res");
+								if (attribute5.Length > 0)
+								{
+									mArtRes = int.Parse(attribute5);
+								}
+								uint mLocSet = 0u;
+								string attribute6 = xmlelement2.GetAttribute("loc");
+								if (attribute6.Length >= 4)
+								{
+									mLocSet = ((uint)attribute6[0] << 24) | ((uint)attribute6[1] << 16) | ((uint)attribute6[2] << 8) | attribute6[3];
+								}
+								SubGroup subGroup = new SubGroup();
+								subGroup.mGroupName = attribute4;
+								subGroup.mArtRes = mArtRes;
+								subGroup.mLocSet = mLocSet;
+								compositeResGroup.mSubGroups.Add(subGroup);
+								if (!mXMLParser.NextElement(xmlelement2))
+								{
+									Fail("Group end expected");
+									break;
+								}
+								if (xmlelement2.mType != XMLElement.XMLElementType.TYPE_END)
+								{
+									Fail("Unexpected element found.");
+									break;
 								}
 							}
-							IL_342:
-							if (this.mHasFailed)
+							else
 							{
-								goto Block_20;
+								if (xmlelement2.mType == XMLElement.XMLElementType.TYPE_ELEMENT)
+								{
+									Fail("Element Not Expected '" + xmlelement2.mValue?.ToString() + "'");
+									return false;
+								}
+								if (xmlelement2.mType == XMLElement.XMLElementType.TYPE_END)
+								{
+									break;
+								}
 							}
-							continue;
-							Block_18:
-							this.Fail("Unexpected element found.");
-							goto IL_342;
-							Block_17:
-							this.Fail("Group end expected");
-							goto IL_342;
-							IL_2ED:
-							this.Fail("Invalid Section '" + xmlelement2.mValue + "' within CompositeGroup");
-							goto IL_342;
+						}
+						if (mHasFailed)
+						{
+							break;
 						}
 					}
 					else if (xmlelement.mType == XMLElement.XMLElementType.TYPE_ELEMENT)
 					{
-						goto Block_21;
+						Fail("Element Not Expected '" + xmlelement.mValue?.ToString() + "'");
+						break;
 					}
 				}
-				this.Fail("No id specified.");
-				Block_8:
-				goto IL_395;
-				Block_10:
-				this.Fail("No id specified on CompositeGroup.");
-				goto IL_395;
-				Block_19:
-				this.Fail("Element Not Expected '" + xmlelement2.mValue + "'");
-				return false;
-				Block_20:
-				goto IL_395;
-				IL_34F:
-				this.Fail("Invalid Section '" + xmlelement.mValue + "'");
-				goto IL_395;
-				Block_21:
-				this.Fail("Element Not Expected '" + xmlelement.mValue + "'");
 			}
-			IL_395:
-			if (this.mXMLParser.HasFailed())
+			if (mXMLParser.HasFailed())
 			{
-				this.Fail(this.mXMLParser.GetErrorText());
+				Fail(mXMLParser.GetErrorText());
 			}
-			this.mXMLParser.Dispose();
-			this.mXMLParser = null;
-			return !this.mHasFailed;
+			mXMLParser.Dispose();
+			mXMLParser = null;
+			return !mHasFailed;
 		}
 
 		// Token: 0x06000E08 RID: 3592 RVA: 0x00047700 File Offset: 0x00045900

@@ -241,6 +241,11 @@ namespace SexyFramework.WidgetsLib
 			{
 				this.mMainAnimDef.mObjectNamePool.AddLast(theBuffer.ReadString());
 				theSpriteDef.mName = this.mMainAnimDef.mObjectNamePool.Last.Value;
+				if (this.mVersion >= 6)
+				{
+					this.mMainAnimDef.mObjectNamePool.AddLast(theBuffer.ReadString());
+					theSpriteDef.mDescription = this.mMainAnimDef.mObjectNamePool.Last.Value;
+				}
 				theSpriteDef.mAnimRate = (float)theBuffer.ReadLong() / 65536f;
 				this.mCRCBuffer.WriteString(theSpriteDef.mName);
 			}
@@ -304,6 +309,10 @@ namespace SexyFramework.WidgetsLib
 						paobjectPos.mIsSprite = (num5 & 32768) != 0;
 						paobjectPos.mIsAdditive = (num5 & 16384) != 0;
 						paobjectPos.mResNum = theBuffer.ReadByte();
+						if (mVersion >= 6 && paobjectPos.mResNum == 255)
+						{
+							paobjectPos.mResNum = theBuffer.ReadInt16();
+						}
 						paobjectPos.mHasSrcRect = false;
 						paobjectPos.mColorInt = -1;
 						paobjectPos.mAnimFrameNum = 0;
@@ -354,7 +363,7 @@ namespace SexyFramework.WidgetsLib
 							num8 = (int)theBuffer.ReadLong();
 						}
 						PAObjectPos paobjectPos2 = dictionary[num8];
-						paobjectPos2.mTransform.mMatrix.LoadIdentity();
+						paobjectPos2.mTransform = new PATransform();//.mMatrix.LoadIdentity();
 						if (((int)num7 & PopAnim.MOVEFLAGS_HAS_MATRIX) != 0)
 						{
 							paobjectPos2.mTransform.mMatrix.m00 = (float)theBuffer.ReadLong() / 65536f;
@@ -433,7 +442,8 @@ namespace SexyFramework.WidgetsLib
 				Array.Sort<int>(array);
 				for (int n = 0; n < array.Length; n++)
 				{
-					PAObjectPos paobjectPos3 = dictionary[array[n]];
+					//PAObjectPos paobjectPos3 = dictionary[array[n]];
+					PAObjectPos paobjectPos3 = new PAObjectPos(dictionary[array[n]]);
 					paframe.mFrameObjectPosVector[num13] = paobjectPos3;
 					paobjectPos3.mPreloadFrames = 0;
 					num13++;
@@ -1767,32 +1777,32 @@ namespace SexyFramework.WidgetsLib
 			return true;
 		}
 
-		// Token: 0x0600107A RID: 4218 RVA: 0x00051C5C File Offset: 0x0004FE5C
-		public virtual bool Load_LoadMod(string theFileName)
-		{
-			PopAnimModParser popAnimModParser = new PopAnimModParser();
-			popAnimModParser.mErrorHeader = "PopAnim Mod File Error in " + theFileName + "\r\n";
-			popAnimModParser.mPopAnim = this;
-			popAnimModParser.mPassNum = 1;
-			if (!popAnimModParser.LoadDescriptor(theFileName))
-			{
-				return false;
-			}
-			if (this.mModPamFile.Length == 0)
-			{
-				return this.Fail("No Pam file specified");
-			}
-			string pathFrom = Common.GetPathFrom(this.mModPamFile, Common.GetFileDir(theFileName, false));
-			if (!this.Load_LoadPam(pathFrom))
-			{
-				return popAnimModParser.Error("Failed to load Pam: " + this.mModPamFile + "\r\n\r\n" + this.mError);
-			}
-			popAnimModParser.mPassNum = 2;
-			return popAnimModParser.LoadDescriptor(theFileName);
-		}
+        // Token: 0x0600107A RID: 4218 RVA: 0x00051C5C File Offset: 0x0004FE5C
+        public virtual bool Load_LoadMod(string theFileName)
+        {
+            PopAnimModParser popAnimModParser = new PopAnimModParser();
+            popAnimModParser.mErrorHeader = "PopAnim Mod File Error in " + theFileName + "\r\n";
+            popAnimModParser.mPopAnim = this;
+            popAnimModParser.mPassNum = 1;
+            if (!popAnimModParser.LoadDescriptor(theFileName))
+            {
+                return false;
+            }
+            if (this.mModPamFile.Length == 0)
+            {
+                return this.Fail("No Pam file specified");
+            }
+            string pathFrom = Common.GetPathFrom(this.mModPamFile, Common.GetFileDir(theFileName, false));
+            if (!this.Load_LoadPam(pathFrom))
+            {
+                return popAnimModParser.Error("Failed to load Pam: " + this.mModPamFile + "\r\n\r\n" + this.mError);
+            }
+            popAnimModParser.mPassNum = 2;
+            return popAnimModParser.LoadDescriptor(theFileName);
+        }
 
-		// Token: 0x0600107B RID: 4219 RVA: 0x00051D08 File Offset: 0x0004FF08
-		public virtual SharedImageRef Load_GetImageHook(string theFileDir, string theOrigName, string theRemappedName)
+        // Token: 0x0600107B RID: 4219 RVA: 0x00051D08 File Offset: 0x0004FF08
+        public virtual SharedImageRef Load_GetImageHook(string theFileDir, string theOrigName, string theRemappedName)
 		{
 			if (theRemappedName.Length == 0)
 			{
@@ -1999,15 +2009,15 @@ namespace SexyFramework.WidgetsLib
 			{
 				return this.Load_LoadPam(theFileName);
 			}
-			if (!(text == ".txt"))
-			{
-				return text.Length == 0 && (this.Load_LoadPam(theFileName + ".pam") || this.Load_LoadMod(theFileName + ".txt"));
-			}
-			if (this.Load_LoadMod(theFileName))
-			{
-				return true;
-			}
-			if (this.mError.Length == 0)
+            if (!(text == ".txt"))
+            {
+                return text.Length == 0 && (this.Load_LoadPam(theFileName + ".pam") || this.Load_LoadMod(theFileName + ".txt"));
+            }
+            if (this.Load_LoadMod(theFileName))
+            {
+                return true;
+            }
+            if (this.mError.Length == 0)
 			{
 				this.mError = "Mod file loading error";
 			}
@@ -2408,8 +2418,8 @@ namespace SexyFramework.WidgetsLib
 			{
 				return;
 			}
-			base.Update();
-			if (!this.SetupSpriteInst())
+            base.Update();
+            if (!this.SetupSpriteInst())
 			{
 				return;
 			}
@@ -2459,10 +2469,10 @@ namespace SexyFramework.WidgetsLib
 		}
 
 		// Token: 0x04000D3B RID: 3387
-		public static ulong PAM_MAGIC = 0xFFFFFFFFBAF01954;
+		public static ulong PAM_MAGIC = 0xBAF01954;
 
 		// Token: 0x04000D3C RID: 3388
-		public static int PAM_VERSION = 5;
+		public static int PAM_VERSION = 6;
 
 		// Token: 0x04000D3D RID: 3389
 		public static int PAM_STATE_VERSION = 1;

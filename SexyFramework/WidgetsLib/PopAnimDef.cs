@@ -10,7 +10,7 @@ namespace SexyFramework.WidgetsLib
 		public PopAnimDef()
 		{
 			this.mRefCount = 0;
-			this.mMainSpriteDef = null;
+			//this.mMainSpriteDef = null;
 		}
 
 		// Token: 0x06001056 RID: 4182 RVA: 0x0004E02C File Offset: 0x0004C22C
@@ -23,7 +23,7 @@ namespace SexyFramework.WidgetsLib
 		}
 
 		// Token: 0x04000D34 RID: 3380
-		public PASpriteDef mMainSpriteDef;
+		public PASpriteDef mMainSpriteDef = new PASpriteDef();
 
 		// Token: 0x04000D35 RID: 3381
 		public List<PASpriteDef> mSpriteDefVector = new List<PASpriteDef>();

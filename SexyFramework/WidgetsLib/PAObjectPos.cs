@@ -22,7 +22,7 @@ namespace SexyFramework.WidgetsLib
 		public bool mHasSrcRect;
 
 		// Token: 0x04000CFE RID: 3326
-		public byte mResNum;
+		public int mResNum;
 
 		// Token: 0x04000CFF RID: 3327
 		public int mPreloadFrames;
@@ -41,5 +41,27 @@ namespace SexyFramework.WidgetsLib
 
 		// Token: 0x04000D04 RID: 3332
 		public int mColorInt;
-	}
+        private PAObjectPos pAObjectPos;
+
+		public PAObjectPos()
+		{
+		}
+		public PAObjectPos(PAObjectPos copyFrom)
+        {
+			this.mName = copyFrom.mName;
+			this.mObjectNum = copyFrom.mObjectNum;
+			this.mIsSprite = copyFrom.mIsSprite;
+			this.mIsAdditive = copyFrom.mIsAdditive;
+			this.mHasSrcRect = copyFrom.mHasSrcRect;
+
+			this.mResNum = copyFrom.mResNum;
+			this.mPreloadFrames = copyFrom.mPreloadFrames;
+			this.mAnimFrameNum = copyFrom.mAnimFrameNum;
+			this.mTimeScale = copyFrom.mTimeScale;
+
+			this.mTransform = copyFrom.mTransform;
+			this.mSrcRect = copyFrom.mSrcRect;
+			this.mColorInt = copyFrom.mColorInt;
+		}
+    }
 }

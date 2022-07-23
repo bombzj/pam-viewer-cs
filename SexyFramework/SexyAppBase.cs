@@ -1095,7 +1095,8 @@ namespace SexyFramework
 			}
 			if (!isInAtlas)
 			{
-				DeviceImage optimizedImage = this.mAppDriver.GetOptimizedImage(theFileName, commitBits, allowTriReps);
+				//DeviceImage optimizedImage = this.mAppDriver.GetOptimizedImage(theFileName, commitBits, allowTriReps);
+				DeviceImage optimizedImage = this.mAppDriver.GetOptimizedImage(System.IO.File.OpenRead("Content\\" + theFileName + ".png"), commitBits, allowTriReps);
 				if (optimizedImage != null)
 				{
 					return optimizedImage;

@@ -117,7 +117,7 @@ namespace SexyFramework.GraphicsLib
 		}
 
 		// Token: 0x0600075A RID: 1882 RVA: 0x00026381 File Offset: 0x00024581
-		internal DeviceImage GetDeviceImage()
+		public DeviceImage GetDeviceImage()
 		{
 			if (this.mSharedImage != null)
 			{

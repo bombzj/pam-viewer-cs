@@ -63,6 +63,7 @@ namespace SexyFramework.WidgetsLib
 
 		// Token: 0x04000D0C RID: 3340
 		public string mName;
+		public string mDescription;
 
 		// Token: 0x04000D0D RID: 3341
 		public List<PAFrame> mFrames = new List<PAFrame>();
