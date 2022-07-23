@@ -1,0 +1,19 @@
+﻿using System;
+
+namespace SexyFramework.GraphicsLib
+{
+	// Token: 0x0200008B RID: 139
+	public enum SEXY3DPOOL
+	{
+		// Token: 0x040002DB RID: 731
+		SEXY3DPOOL_DEFAULT,
+		// Token: 0x040002DC RID: 732
+		SEXY3DPOOL_MANAGED,
+		// Token: 0x040002DD RID: 733
+		SEXY3DPOOL_SYSTEMMEM,
+		// Token: 0x040002DE RID: 734
+		SEXY3DPOOL_SCRATCH,
+		// Token: 0x040002DF RID: 735
+		SEXY3DPOOL_FORCE_DWORD = 2147483647
+	}
+}

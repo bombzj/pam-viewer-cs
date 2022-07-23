@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+<PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{47195F8A-9644-4648-8851-0BA2C8C484A6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>SexyFramework</RootNamespace>
+    <AssemblyName>SexyFramework</AssemblyName>
+	<TargetFramework>netcoreapp3.1</TargetFramework>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Microsoft.Xna.Framework.RuntimeProfile" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.0.1641" />
+  </ItemGroup>
+</Project>

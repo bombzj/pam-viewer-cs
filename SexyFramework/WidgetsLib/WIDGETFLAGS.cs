@@ -1,0 +1,21 @@
+﻿using System;
+
+namespace SexyFramework.WidgetsLib
+{
+	// Token: 0x020001D6 RID: 470
+	public enum WIDGETFLAGS
+	{
+		// Token: 0x04000DE9 RID: 3561
+		WIDGETFLAGS_UPDATE = 1,
+		// Token: 0x04000DEA RID: 3562
+		WIDGETFLAGS_MARK_DIRTY,
+		// Token: 0x04000DEB RID: 3563
+		WIDGETFLAGS_DRAW = 4,
+		// Token: 0x04000DEC RID: 3564
+		WIDGETFLAGS_CLIP = 8,
+		// Token: 0x04000DED RID: 3565
+		WIDGETFLAGS_ALLOW_MOUSE = 16,
+		// Token: 0x04000DEE RID: 3566
+		WIDGETFLAGS_ALLOW_FOCUS = 32
+	}
+}

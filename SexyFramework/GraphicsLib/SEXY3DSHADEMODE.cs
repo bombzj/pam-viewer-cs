@@ -1,0 +1,17 @@
+﻿using System;
+
+namespace SexyFramework.GraphicsLib
+{
+	// Token: 0x0200008F RID: 143
+	public enum SEXY3DSHADEMODE
+	{
+		// Token: 0x0400031C RID: 796
+		SEXY3DSHADE_FLAT = 1,
+		// Token: 0x0400031D RID: 797
+		SEXY3DSHADE_GOURAUD,
+		// Token: 0x0400031E RID: 798
+		SEXY3DSHADE_PHONG,
+		// Token: 0x0400031F RID: 799
+		SEXY3DSHADE_FORCE_DWORD = 2147483647
+	}
+}

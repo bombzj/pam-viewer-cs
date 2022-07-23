@@ -1,0 +1,27 @@
+﻿using System;
+
+namespace SexyFramework
+{
+	// Token: 0x02000076 RID: 118
+	public enum MessageBoxResults
+	{
+		// Token: 0x04000248 RID: 584
+		MSGBOX_RESULT_OK = 1,
+		// Token: 0x04000249 RID: 585
+		MSGBOX_RESULT_CANCEL,
+		// Token: 0x0400024A RID: 586
+		MSGBOX_RESULT_ABORT,
+		// Token: 0x0400024B RID: 587
+		MSGBOX_RESULT_RETRY,
+		// Token: 0x0400024C RID: 588
+		MSGBOX_RESULT_IGNORE,
+		// Token: 0x0400024D RID: 589
+		MSGBOX_RESULT_YES,
+		// Token: 0x0400024E RID: 590
+		MSGBOX_RESULT_NO,
+		// Token: 0x0400024F RID: 591
+		MSGBOX_RESULT_TRYAGAIN = 10,
+		// Token: 0x04000250 RID: 592
+		MSGBOX_RESULT_CONTINUE
+	}
+}

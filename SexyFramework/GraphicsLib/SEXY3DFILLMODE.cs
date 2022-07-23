@@ -1,0 +1,17 @@
+﻿using System;
+
+namespace SexyFramework.GraphicsLib
+{
+	// Token: 0x02000090 RID: 144
+	public enum SEXY3DFILLMODE
+	{
+		// Token: 0x04000321 RID: 801
+		SEXY3DFILL_POINT = 1,
+		// Token: 0x04000322 RID: 802
+		SEXY3DFILL_WIREFRAME,
+		// Token: 0x04000323 RID: 803
+		SEXY3DFILL_SOLID,
+		// Token: 0x04000324 RID: 804
+		SEXY3DFILL_FORCE_DWORD = 2147483647
+	}
+}

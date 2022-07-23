@@ -1,0 +1,17 @@
+﻿using System;
+
+namespace SexyFramework
+{
+	// Token: 0x02000078 RID: 120
+	public enum UPDATESTATE
+	{
+		// Token: 0x04000257 RID: 599
+		UPDATESTATE_MESSAGES,
+		// Token: 0x04000258 RID: 600
+		UPDATESTATE_PROCESS_1,
+		// Token: 0x04000259 RID: 601
+		UPDATESTATE_PROCESS_2,
+		// Token: 0x0400025A RID: 602
+		UPDATESTATE_PROCESS_DONE
+	}
+}

@@ -1,0 +1,17 @@
+﻿using System;
+
+namespace SexyFramework
+{
+	// Token: 0x020001A7 RID: 423
+	public enum EShowCompatInfoMode
+	{
+		// Token: 0x04000CA3 RID: 3235
+		SHOWCOMPATINFOMODE_OFF,
+		// Token: 0x04000CA4 RID: 3236
+		SHOWCOMPATINFOMODE_BOTTOM,
+		// Token: 0x04000CA5 RID: 3237
+		SHOWCOMPATINFOMODE_TOP,
+		// Token: 0x04000CA6 RID: 3238
+		SHOWCOMPATINFOMODE_COUNT
+	}
+}
