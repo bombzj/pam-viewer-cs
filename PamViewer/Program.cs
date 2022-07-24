@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input.Touch;
+using PopStudio.Plugin;
+using PopStudio.RTON;
 using SexyFramework;
 using SexyFramework.Drivers.App;
 using SexyFramework.Drivers.Graphics;
@@ -54,12 +57,20 @@ namespace PamViewer
 			resourceManager = gameApp.mResourceManager = new SexyFramework.Resource.ResourceManager(gameApp);
 
 			DirectoryInfo folder = new DirectoryInfo(contentRoot + "\\" + propertiesRoot);
-			foreach (FileInfo file in folder.GetFiles())
-			{
-				if(file.Extension == ".json")
-                {
-					resourceManager.ParseResourcesFileJson(propertiesRoot + "\\" + file.Name);
-				}
+			foreach (FileInfo file in folder.GetFiles("RESOURCES*.json"))
+				resourceManager.ParseResourcesFileJson(propertiesRoot + "\\" + file.Name);
+
+			foreach (FileInfo file in folder.GetFiles("RESOURCES*.rton"))
+            {
+				using FileStream stream = new FileStream(contentRoot + "\\" + propertiesRoot + "\\" + file.Name, FileMode.Open);
+				BinaryStream bs = new BinaryStream(stream);
+                using MemoryStream ms = new MemoryStream(100000);
+                RTON.Decode(bs, ms);
+				ms.Position = 0;
+				using JsonDocument json = JsonDocument.Parse(ms, new JsonDocumentOptions { AllowTrailingCommas = true });
+
+				JsonElement root = json.RootElement;
+				resourceManager.ParseResourcesFileJson(root);
 			}
 
 			resourceManager.mBaseArtRes = artRes;

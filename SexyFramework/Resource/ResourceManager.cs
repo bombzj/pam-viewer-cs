@@ -97,30 +97,22 @@ namespace SexyFramework.Resource
 			return true;
 		}
 
-        public bool ParseResourcesFileJson(string theFileName)
+		public bool ParseResourcesFileJson(JsonElement root)
         {
-			SexyBuffer buffer = new SexyBuffer();
-			string fileDir = Common.GetFileDir(theFileName, false);
-			if (!GlobalMembers.gSexyAppBase.ReadBufferFromStream(theFileName, ref buffer))
+			if(!root.TryGetProperty("groups", out var groups))
+				return false;
+			foreach (JsonElement group in groups.EnumerateArray())
 			{
-				return this.Fail("Unable to load file: " + theFileName);
-			}
-			using FileStream stream = new FileStream("Content\\" + theFileName, FileMode.Open);
-			using JsonDocument json = JsonDocument.Parse(stream, new JsonDocumentOptions { AllowTrailingCommas = true });
-
-			JsonElement root = json.RootElement;
-
-			foreach(JsonElement group in root.GetProperty("groups").EnumerateArray())
-            {
 				string id = group.GetProperty("id").GetString();
-				switch (group.GetProperty("type").GetString()) {
+				switch (group.GetProperty("type").GetString())
+				{
 					case "simple":
 						ResGroup rg = new ResGroup();
 						foreach (JsonElement resource in group.GetProperty("resources").EnumerateArray())
 						{
 							StringBuilder sbPath = new StringBuilder(50);
-							foreach(JsonElement p in resource.GetProperty("path").EnumerateArray())
-                            {
+							foreach (JsonElement p in resource.GetProperty("path").EnumerateArray())
+							{
 								sbPath.Append(p.GetString()).Append('\\');
 							}
 							sbPath.Length--;
@@ -130,12 +122,12 @@ namespace SexyFramework.Resource
 							{
 								case "Image":
 									bool isAtlas = false;
-									if(resource.TryGetProperty("atlas", out JsonElement isAtlasElement))
-                                    {
+									if (resource.TryGetProperty("atlas", out JsonElement isAtlasElement))
+									{
 										isAtlas = isAtlasElement.GetBoolean();
 									}
 									if (isAtlas)
-                                    {
+									{
 										res = new ImageRes
 										{
 											mId = resource.GetProperty("id").GetString(),
@@ -144,7 +136,7 @@ namespace SexyFramework.Resource
 											mParent = this
 										};
 									}
-                                    else
+									else
 									{
 										res = new ImageRes
 										{
@@ -168,7 +160,7 @@ namespace SexyFramework.Resource
 									};
 									break;
 							}
-							if(res != null)
+							if (res != null)
 							{
 								rg.mResList.Add(res);
 								this.mResMaps[((int)res.mType)].Add(res.mId, res);
@@ -185,7 +177,7 @@ namespace SexyFramework.Resource
 								mGroupName = subgroup.GetProperty("id").GetString(),
 							};
 							if (subgroup.TryGetProperty("res", out JsonElement resElement))
-                            {
+							{
 								sg.mArtRes = Int32.Parse(resElement.GetString());
 							}
 							crp.mSubGroups.Add(sg);
@@ -193,14 +185,28 @@ namespace SexyFramework.Resource
 						mCompositeResGroupMap.Add(id, crp);
 						break;
 				}
+			}
 
-            }
-
-            return true;
+			return true;
 		}
 
-        // Token: 0x06000DFE RID: 3582 RVA: 0x000464E8 File Offset: 0x000446E8
-        protected virtual bool ParseSoundResource(XMLElement theElement)
+		public bool ParseResourcesFileJson(string theFileName)
+        {
+			SexyBuffer buffer = new SexyBuffer();
+			string fileDir = Common.GetFileDir(theFileName, false);
+			if (!GlobalMembers.gSexyAppBase.ReadBufferFromStream(theFileName, ref buffer))
+			{
+				return this.Fail("Unable to load file: " + theFileName);
+			}
+			using FileStream stream = new FileStream("Content\\" + theFileName, FileMode.Open);
+			using JsonDocument json = JsonDocument.Parse(stream, new JsonDocumentOptions { AllowTrailingCommas = true });
+
+			JsonElement root = json.RootElement;
+			return ParseResourcesFileJson(root);
+		}
+
+		// Token: 0x06000DFE RID: 3582 RVA: 0x000464E8 File Offset: 0x000446E8
+		protected virtual bool ParseSoundResource(XMLElement theElement)
 		{
 			SoundRes soundRes = new SoundRes();
 			soundRes.mSoundId = -1;
