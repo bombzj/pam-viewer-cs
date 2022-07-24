@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input.Touch;
 using SexyFramework;
 using SexyFramework.Drivers.App;
+using SexyFramework.Drivers.Graphics;
 using SexyFramework.GraphicsLib;
 using SexyFramework.Misc;
 using SexyFramework.Resource;
@@ -94,7 +95,7 @@ namespace PamViewer
 				}
 			}
 		}
-		
+
 		protected override void Draw(GameTime gameTime)
 		{
 			GraphicsDevice.Clear(Color.White);
@@ -102,7 +103,7 @@ namespace PamViewer
 			//spriteBatch.End();
 
 			Graphics g = new Graphics();
-			g.mTransX = -40;
+			g.Translate(-40, 0);
 			foreach (PopAnim pa in popAnim)
 			{
                 pa?.Draw(g);
@@ -113,7 +114,14 @@ namespace PamViewer
 					g.mTransY += 160;
 				}
 			}
-			g.ClearRenderContext();
+			//g.mTransX = g.mTransY = 50;
+			//ImageRes res = resourceManager.mResMaps[0]["IMAGE_MOWERS_MOWER_FUTURE_MOWER_FUTURE_119X40"] as ImageRes;
+			//DeviceImage deviceImage = (DeviceImage)res.mImage.GetImage();
+			//SexyTransform2D mMatrix = new SexyTransform2D(false);
+			//Rect rect = new Rect(0, 0, deviceImage.mWidth, deviceImage.mHeight);
+			//g.DrawImageMatrix(deviceImage, mMatrix, rect);
+
+			((RenderDevice3D)gameApp.mGraphicsDriver.GetRenderDevice()).Flush();
 			base.Draw(gameTime);
 		}
 
