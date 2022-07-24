@@ -5,13 +5,6 @@ VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SexyFramework", "SexyFramework\SexyFramework.csproj", "{47195F8A-9644-4648-8851-0BA2C8C484A6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zuma's Revenge!", "Zuma's Revenge!\Zuma's Revenge!.csproj", "{47195F8A-9644-4648-8851-0BA2C8C484A7}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F0EB7AD4-68C8-4056-8089-1EADC34E5078} = {F0EB7AD4-68C8-4056-8089-1EADC34E5078}
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zuma's Revenge!.resources.7", "Zuma's Revenge!.resources.7\Zuma's Revenge!.resources.7.csproj", "{F0EB7AD4-68C8-4056-8089-1EADC34E5078}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PamViewer", "PamViewer\PamViewer.csproj", "{7ED2BE18-C26C-48AD-9B19-743336DE8C50}"
 EndProject
 Global
@@ -24,14 +17,6 @@ Global
 		{47195F8A-9644-4648-8851-0BA2C8C484A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47195F8A-9644-4648-8851-0BA2C8C484A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47195F8A-9644-4648-8851-0BA2C8C484A6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{47195F8A-9644-4648-8851-0BA2C8C484A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{47195F8A-9644-4648-8851-0BA2C8C484A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{47195F8A-9644-4648-8851-0BA2C8C484A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{47195F8A-9644-4648-8851-0BA2C8C484A7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F0EB7AD4-68C8-4056-8089-1EADC34E5078}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F0EB7AD4-68C8-4056-8089-1EADC34E5078}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F0EB7AD4-68C8-4056-8089-1EADC34E5078}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F0EB7AD4-68C8-4056-8089-1EADC34E5078}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7ED2BE18-C26C-48AD-9B19-743336DE8C50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7ED2BE18-C26C-48AD-9B19-743336DE8C50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7ED2BE18-C26C-48AD-9B19-743336DE8C50}.Release|Any CPU.ActiveCfg = Release|Any CPU

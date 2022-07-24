@@ -18,13 +18,14 @@ namespace PamViewer
 		static void Main()
 		{
 			Program game = new Program();
+			game.Window.AllowUserResizing = true;
 			game.Run();
 		}
 
 		public Program()
 		{
-            this.mGameApp = new SexyApp();
-			((WP7AppDriver)mGameApp.mAppDriver).InitXNADriver(this);
+            gameApp = new SexyApp();
+			((WP7AppDriver)gameApp.mAppDriver).InitXNADriver(this);
 			TouchPanel.EnableMouseTouchPoint = true;
 			IsMouseVisible = true;
 		}
@@ -32,14 +33,14 @@ namespace PamViewer
 		protected override void Initialize()
 		{
 			base.Initialize();
-			this.spriteBatch = new SpriteBatch(base.GraphicsDevice);
-			mGameApp.mAppDriver.Init();
+			spriteBatch = new SpriteBatch(base.GraphicsDevice);
+			gameApp.mAppDriver.Init();
 
 			int paIndex = 0;
 			foreach (string n in tempGroup)
             {
-				string groupName = mResourceManager.mCompositeResGroupMap[n].mSubGroups.Find(x => x.mArtRes == 0).mGroupName;
-				ResGroup rg = mResourceManager.mResGroupMap[groupName];
+				string groupName = resourceManager.mCompositeResGroupMap[n].mSubGroups.Find(x => x.mArtRes == 0).mGroupName;
+				ResGroup rg = resourceManager.mResGroupMap[groupName];
 				PopAnimRes pam = (PopAnimRes)rg.mResList.Find(x => x.mType == ResType.ResType_PopAnim);
 				popAnim[paIndex] = pam.mPopAnim.Duplicate();
 				paIndex++;
@@ -49,23 +50,23 @@ namespace PamViewer
 
 		protected override void LoadContent()
 		{
-			mResourceManager = mGameApp.mResourceManager = new SexyFramework.Resource.ResourceManager(mGameApp);
+			resourceManager = gameApp.mResourceManager = new SexyFramework.Resource.ResourceManager(gameApp);
 
 			DirectoryInfo folder = new DirectoryInfo(contentRoot + "\\" + propertiesRoot);
 			foreach (FileInfo file in folder.GetFiles())
 			{
 				if(file.Extension == ".json")
                 {
-					mResourceManager.ParseResourcesFileJson(propertiesRoot + "\\" + file.Name);
+					resourceManager.ParseResourcesFileJson(propertiesRoot + "\\" + file.Name);
 				}
 			}
 
-			mResourceManager.mBaseArtRes = gameRes;
-			mResourceManager.mLeadArtRes = gameRes;
-			mResourceManager.mCurArtRes = gameRes;
+			resourceManager.mBaseArtRes = artRes;
+			resourceManager.mLeadArtRes = artRes;
+			resourceManager.mCurArtRes = artRes;
 
 			foreach(string n in tempGroup)
-				mResourceManager.LoadResources(n);
+				resourceManager.LoadResources(n);
 		}
 
 		protected override void UnloadContent()
@@ -77,7 +78,7 @@ namespace PamViewer
 			UpdateInput(gameTime);
 			//bool isRunningSlowly = gameTime.IsRunningSlowly;
 			base.Update(gameTime);
-			this.mElipseTime += gameTime.ElapsedGameTime.TotalSeconds;
+			elipseTime += gameTime.ElapsedGameTime.TotalSeconds;
 			foreach (PopAnim pa in popAnim)
 			{
 				if (pa != null)
@@ -96,20 +97,20 @@ namespace PamViewer
 		
 		protected override void Draw(GameTime gameTime)
 		{
-			base.GraphicsDevice.Clear(Color.White);
-			//this.spriteBatch.Begin();
-			//this.spriteBatch.End();
+			GraphicsDevice.Clear(Color.White);
+			//spriteBatch.Begin();
+			//spriteBatch.End();
 
 			Graphics g = new Graphics();
-			g.mTransX = 0;
+			g.mTransX = -40;
 			foreach (PopAnim pa in popAnim)
 			{
-				pa?.Draw(g);
-				g.mTransX += 180;
-				if (g.mTransX > 600)
+                pa?.Draw(g);
+                g.mTransX += 160;
+				if (g.mTransX > 400)
 				{
 					g.mTransX = 0;
-					g.mTransY += 180;
+					g.mTransY += 160;
 				}
 			}
 			g.ClearRenderContext();
@@ -126,39 +127,39 @@ namespace PamViewer
 					while (enumerator.MoveNext())
 					{
 						TouchLocation touchLocation = enumerator.Current;
-						if (this.mCurrentTouchId == -1)
+						if (currentTouchId == -1)
 						{
-							this.mCurrentTouchId = touchLocation.Id;
+							currentTouchId = touchLocation.Id;
 						}
-						else if (touchLocation.Id != this.mCurrentTouchId)
+						else if (touchLocation.Id != currentTouchId)
 						{
 							continue;
 						}
-						float num = (touchLocation.Position.X - (float)this.GameOffsetX) * this.GameScaleRatio;
-						float num2 = (touchLocation.Position.Y - (float)this.GameOffsetY) * this.GameScaleRatio;
+						float num = (touchLocation.Position.X - (float)gameOffsetX) * gameScaleRatio;
+						float num2 = (touchLocation.Position.Y - (float)gameOffsetY) * gameScaleRatio;
 						SexyPoint loc = new SexyPoint((int)num, (int)num2);
 						switch (touchLocation.State)
 						{
 							case TouchLocationState.Moved:
 								this.touch.SetTouchInfo(loc, _TouchPhase.TOUCH_ENDED, DateTime.Now.TimeOfDay.TotalMilliseconds);
-								this.mGameApp.TouchEnded(this.touch);
-								this.mCurrentTouchId = -1;
+								this.gameApp.TouchEnded(this.touch);
+								currentTouchId = -1;
 								break;
 							case TouchLocationState.Pressed:
 								RandomAnim();
 								this.touch.SetTouchInfo(loc, _TouchPhase.TOUCH_BEGAN, DateTime.Now.TimeOfDay.TotalMilliseconds);
-								this.mGameApp.TouchBegan(this.touch);
+								this.gameApp.TouchBegan(this.touch);
 								break;
 							case TouchLocationState.Released:
 								this.touch.SetTouchInfo(loc, _TouchPhase.TOUCH_MOVED, DateTime.Now.TimeOfDay.TotalMilliseconds);
-								this.mGameApp.TouchMoved(this.touch);
+								this.gameApp.TouchMoved(this.touch);
 								break;
 						}
 					}
 					return;
 				}
 			}
-			this.mCurrentTouchId = -1;
+			currentTouchId = -1;
 		}
 
 		private Random rnd = new Random();
@@ -192,22 +193,20 @@ namespace PamViewer
 			"PlantSunflower", "PlantSnowPea" };
 
 
-		private SexyApp mGameApp;
+		private SexyApp gameApp;
 		private PopAnim[] popAnim = new PopAnim[40];
 
-		public static int gameRes = 1200;
+		public static int artRes = 1200;
 		public static string contentRoot = "Content";
 		public static string propertiesRoot = "properties";
-		public ResourceManager mResourceManager;
+		public ResourceManager resourceManager;
 		private SpriteBatch spriteBatch;
-		private double mElipseTime;
-		private int mCurrentTouchId = -1;
 
-		private int GameOffsetX;
-
-		private int GameOffsetY;
-
-		private float GameScaleRatio = 1.33f;
+		private double elipseTime;
+		private int currentTouchId = -1;
+		private int gameOffsetX;
+		private int gameOffsetY;
+		private float gameScaleRatio = 1.33f;
 
 		private SexyAppBase.Touch touch = new SexyAppBase.Touch();
 	}

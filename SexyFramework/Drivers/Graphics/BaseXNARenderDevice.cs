@@ -118,8 +118,8 @@ namespace SexyFramework.Drivers.Graphics
 			if (theContext == null || theContext.GetPointer() == null)
 			{
 				this.mDevice.GraphicsDevice.SetRenderTarget(null);
-				this.mStateMgr.SetProjectionTransform(Matrix.CreateOrthographicOffCenter(0f, 1066f, 640f, 0f, -1000f, 1000f));
-				this.SetViewport(0, 0, 800, 480, 0f, 1f);
+				this.mStateMgr.SetProjectionTransform(Matrix.CreateOrthographicOffCenter(0f, this.mWidth, this.mHeight, 0f, -1000f, 1000f));
+				this.SetViewport(0, 0, mWidth, mHeight, 0f, 1f);
 				this.mCurrentContex = theContext;
 				return;
 			}
@@ -1098,8 +1098,8 @@ namespace SexyFramework.Drivers.Graphics
 		// Token: 0x060002D9 RID: 729 RVA: 0x0000A460 File Offset: 0x00008660
 		public void Init(int width, int height)
 		{
-			this.mScreenWidth = (this.mDevice.PreferredBackBufferWidth = 1066);
-			this.mScreenHeight = (this.mDevice.PreferredBackBufferHeight = 640);
+			this.mScreenWidth = (this.mDevice.PreferredBackBufferWidth = width);
+			this.mScreenHeight = (this.mDevice.PreferredBackBufferHeight = height);
 			this.mWidth = width;
 			this.mHeight = height;
 			this.mDevice.SupportedOrientations = DisplayOrientation.LandscapeLeft|DisplayOrientation.LandscapeRight;
@@ -1136,7 +1136,7 @@ namespace SexyFramework.Drivers.Graphics
 				num = theImage.mWidth;
 				num2 = theImage.mHeight;
 			}
-			this.SetViewport(0, 0, 800, 480, 0f, 1f);
+			this.SetViewport(0, 0, num, num2, 0f, 1f);
 			this.mStateMgr.SetProjectionTransform(Matrix.CreateOrthographicOffCenter(0f, (float)num, (float)num2, 0f, -1000f, 1000f));
 			this.mStateMgr.SetViewTransform(Matrix.CreateLookAt(new Vector3(0f, 0f, 300f), Vector3.Zero, Vector3.Up));
 			this.mStateMgr.SetWorldTransform(Matrix.Identity);

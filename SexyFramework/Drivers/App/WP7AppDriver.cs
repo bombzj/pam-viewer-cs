@@ -49,8 +49,8 @@ namespace SexyFramework.Drivers.App
 			this.mApp.mProdName = "Product";
 			this.mApp.mShutdown = false;
 			this.mApp.mExitToTop = false;
-			this.mApp.mWidth = 1066;
-			this.mApp.mHeight = 640;
+			this.mApp.mWidth = 600;
+			this.mApp.mHeight = 600;
 			this.mApp.mFullscreenBits = 16;
 			this.mApp.mIsWindowed = true;
 			this.mApp.mIsPhysWindowed = true;
