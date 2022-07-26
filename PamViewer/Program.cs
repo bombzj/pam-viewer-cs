@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input.Touch;
@@ -19,6 +21,7 @@ namespace PamViewer
 {
 	public class Program : Game
 	{
+		[STAThread]
 		static void Main()
 		{
 			Program game = new Program();
@@ -37,19 +40,21 @@ namespace PamViewer
 		protected override void Initialize()
 		{
 			base.Initialize();
+			form = new PamForm(this);
+
 			spriteBatch = new SpriteBatch(base.GraphicsDevice);
 			gameApp.mAppDriver.Init();
 
-			int paIndex = 0;
-			foreach (string n in tempGroup)
-            {
-				string groupName = resourceManager.mCompositeResGroupMap[n].mSubGroups.Find(x => x.mArtRes == 0).mGroupName;
-				ResGroup rg = resourceManager.mResGroupMap[groupName];
-				PopAnimRes pam = (PopAnimRes)rg.mResList.Find(x => x.mType == ResType.ResType_PopAnim);
-				popAnim[paIndex] = pam.mPopAnim.Duplicate();
-				paIndex++;
-			}
-			RandomAnim();
+			//int paIndex = 0;
+			//foreach (string n in tempGroup)
+   //         {
+			//	string groupName = resourceManager.mCompositeResGroupMap[n].mSubGroups.Find(x => x.mArtRes == 0).mGroupName;
+			//	ResGroup rg = resourceManager.mResGroupMap[groupName];
+			//	PopAnimRes pam = (PopAnimRes)rg.mResList.Find(x => x.mType == ResType.ResType_PopAnim);
+			//	popAnim[paIndex] = pam.mPopAnim.Duplicate();
+			//	paIndex++;
+			//}
+			//RandomAnim();
 		}
 
 		protected override void LoadContent()
@@ -77,8 +82,8 @@ namespace PamViewer
 			resourceManager.mLeadArtRes = artRes;
 			resourceManager.mCurArtRes = artRes;
 
-			foreach(string n in tempGroup)
-				resourceManager.LoadResources(n);
+			//foreach(string n in tempGroup)
+			//	resourceManager.LoadResources(n);
 		}
 
 		protected override void UnloadContent()
@@ -87,7 +92,7 @@ namespace PamViewer
 
 		protected override void Update(GameTime gameTime)
 		{
-			UpdateInput(gameTime);
+			//UpdateInput(gameTime);
 			//bool isRunningSlowly = gameTime.IsRunningSlowly;
 			base.Update(gameTime);
 			elipseTime += gameTime.ElapsedGameTime.TotalSeconds;
@@ -101,7 +106,7 @@ namespace PamViewer
 					}
 					else
 					{
-						pa.Play(pa.mLastPlayedFrameLabel);
+						pa.Play(pa.mLastPlayedFrameLabel, false);
 					}
 				}
 			}
@@ -109,11 +114,11 @@ namespace PamViewer
 
 		protected override void Draw(GameTime gameTime)
 		{
-			GraphicsDevice.Clear(Color.White);
-			//spriteBatch.Begin();
-			//spriteBatch.End();
+            GraphicsDevice.Clear(Color.White);
+            //spriteBatch.Begin();
+            //spriteBatch.End();
 
-			Graphics g = new Graphics();
+            Graphics g = new Graphics();
 			g.Translate(-40, 0);
 			foreach (PopAnim pa in popAnim)
 			{
@@ -134,6 +139,57 @@ namespace PamViewer
 
 			((RenderDevice3D)gameApp.mGraphicsDriver.GetRenderDevice()).Flush();
 			base.Draw(gameTime);
+		}
+
+		public List<string> searchGroup(string str)
+        {
+			str = str.ToLower();
+			List<string> list = new List<string>();
+			foreach (var cgroup in resourceManager.mCompositeResGroupMap)
+				if(cgroup.Key.ToLower().IndexOf(str) != -1)
+                {
+					list.Add(cgroup.Key);
+				}
+			return list;
+        }
+
+		public List<string> listPam(string groupName)
+        {
+			resourceManager.LoadResources(groupName);
+			var group = resourceManager.mCompositeResGroupMap[groupName];
+			var rg = resourceManager.mResGroupMap[group.mSubGroups.Find(x => x.mArtRes == 0).mGroupName];
+			var pams = rg.mResList.FindAll(x => x.mType == ResType.ResType_PopAnim);
+			List<string> list = new List<string>();
+			foreach (var pam in pams)
+			{
+				list.Add(pam.mId);
+			}
+			return list;
+		}
+
+		public List<string> listSprite(string pamName)
+        {
+			var pam = ((PopAnimRes)resourceManager.mResMaps[(int)ResType.ResType_PopAnim][pamName]).mPopAnim;
+			List<string> list = new List<string>();
+			foreach(var name in pam.mMainAnimDef.mMainSpriteDef.mLabels.Keys)
+            {
+				list.Add(name);
+			}
+			return list;
+		}
+
+		public void playSprite(string groupName, string pamName, string spriteName)
+        {
+			//if(popAnim[0] != null)
+			//         {
+
+			//         } else
+			//         {
+
+			//         }
+			var pam = ((PopAnimRes)resourceManager.mResMaps[(int)ResType.ResType_PopAnim][pamName]).mPopAnim;
+			popAnim[0] = pam.Duplicate();
+			popAnim[0].Play(spriteName);
 		}
 
 		private void UpdateInput(GameTime gameTime)
@@ -165,7 +221,6 @@ namespace PamViewer
 								currentTouchId = -1;
 								break;
 							case TouchLocationState.Pressed:
-								RandomAnim();
 								this.touch.SetTouchInfo(loc, _TouchPhase.TOUCH_BEGAN, DateTime.Now.TimeOfDay.TotalMilliseconds);
 								this.gameApp.TouchBegan(this.touch);
 								break;
@@ -181,20 +236,20 @@ namespace PamViewer
 			currentTouchId = -1;
 		}
 
-		private Random rnd = new Random();
-		private void RandomAnim()
-		{
-			foreach (PopAnim pa in popAnim)
-				if (pa != null)
-				{
-					string[] labels = pa.mMainAnimDef.mMainSpriteDef.mLabels.Keys.ToArray<string>();
-					pa.Play(labels[rnd.Next(labels.Length)]);
-				}
-		}
+		//private Random rnd = new Random();
+		//public void RandomAnim()
+		//{
+		//	foreach (PopAnim pa in popAnim)
+		//		if (pa != null)
+		//		{
+		//			string[] labels = pa.mMainAnimDef.mMainSpriteDef.mLabels.Keys.ToArray<string>();
+		//			pa.BlendTo(labels[0], 16);
+		//		}
+		//}
 
 		protected override void OnExiting(object sender, EventArgs args)
 		{
-
+			form.Dispose();
 		}
 
 		protected override void OnActivated(object sender, EventArgs args)
@@ -207,11 +262,9 @@ namespace PamViewer
 			base.OnDeactivated(sender, args);
 		}
 
-		private string[] tempGroup = {"FutureMowerGroup", "SunBombChallengeModule",
-			"ZombieEgyptBasicGroup", "PlantMelonpult", "PlantCherryBomb", "PlantThreepeater",
-			"PlantSunflower", "PlantSnowPea" };
+		//private string[] tempGroup = { "PlantMelonpult" };
 
-
+		private PamForm form;
 		private SexyApp gameApp;
 		private PopAnim[] popAnim = new PopAnim[40];
 
